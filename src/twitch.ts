@@ -9,6 +9,7 @@ import axios from "axios";
 
 import logger from "./logger.js";
 import assert from "assert";
+import {Config} from "./index.js";
 
 export enum StreamTag {
     DROPS_ENABLED = "c2542d6d-cd10-4532-919b-3d19f30a768b"
@@ -162,6 +163,22 @@ export class Client {
         this.#oauthToken = options?.oauthToken;
         this.#userId = options?.userId;
         this.#deviceId = options?.deviceId;
+    }
+
+    static async fromConfig(config: Config): Promise<Client> {
+        const options: Options = {
+            oauthToken: config.auth_token,
+            userId: config.persistent,
+            deviceId: config.unique_id,
+        };
+
+        const client = new Client(options);
+        if (!config.persistent) {
+            await client.#autoDetectUserId();
+            logger.info("auto detected user id");
+        }
+
+        return client;
     }
 
     static async fromCookies(cookies: any): Promise<Client> {

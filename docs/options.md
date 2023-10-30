@@ -3,12 +3,12 @@
 There are multiple options you can configure. They can be provided as command line arguments or in a config JSON file. Options passed as command line arguments will override items in the config file. If no command line arguments are
 provided, a default config file will be generated.
 
-A sample config file looks like this:
+A sample config file looks like this (using fake `auth_token` and `unique_id` as an example, see below for instructions on how to retrive the values of the two cookies):
 
 ```
 {
-    "username": "my_twitch_username",
-    "password": "my_twitch_password",
+    "auth_token": "8150u4rv2dp74zrs8q3e7cws414cqc",
+    "unique_id": "8NDEcrUZNW5C83ryJTn7SmlzxS4eWw5g",
     "browser": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
     "games": ["Rocket league", "514152", "138585"],
     "headless": true,
@@ -78,6 +78,17 @@ A sample config file looks like this:
     "auto_claim_drops": true
 }
 ```
+Retriving `auth_token` and `unique_id` (and optionally, `persistent`): 
+
+1. Go to twitch.tv, log in
+
+2. Press F12 on your keyboard to open the browser's developer view
+
+3. At the top bar, click Application (might be hidden, click >> button to expand)
+
+4. On the left side, under storage, click Cookies > https://www.twitch.tv
+
+5. There will be a list of cookies showing on the right, copy the value of the corresponding cookie and paste in the config.json
 
 Below is a list of all available options.
 

@@ -1,6 +1,6 @@
 # Twitch Drops Bot
 
-A Node.js bot that uses [Puppeteer](https://github.com/puppeteer/puppeteer) to automatically watch Twitch streams and claim drop rewards.
+A Node.js bot that uses [Puppeteer](https://github.com/puppeteer/puppeteer) to automatically watch Twitch streams ~~and claim drop rewards~~ (pending update, but can be achieveable through chrome [extension](https://chrome.google.com/webstore/detail/automatic-twitch-drops-mo/kfhgpagdjjoieckminnmigmpeclkdmjm)).
 
 ## Getting Started
 

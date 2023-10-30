@@ -19,7 +19,6 @@ import {Client, DropCampaign, getDropBenefitNames, TimeBasedDrop} from "./twitch
 import {StringOption, BooleanOption, IntegerOption, StringListOption, JsonOption} from "./options.js";
 import {TwitchDropsBot} from "./twitch_drops_bot.js";
 import {ConfigurationParser} from "./configuration_parser.js";
-import {LoginPage} from "./pages/login.js";
 import {Application} from "./ui/ui.js";
 import {compareVersionString, getLatestDevelopmentVersion, getLatestReleaseVersion} from "./utils.js";
 import {format, transports} from "winston";
@@ -266,6 +265,7 @@ const options = [
     new StringOption("--username", {alias: "-u"}),
     new StringOption("--password", {alias: "-p"}),
     new StringOption("--auth-token"),
+    new StringOption("--unique-id"),
     new StringOption("--browser", {
         alias: "-b",
         defaultValue: () => {
@@ -369,6 +369,8 @@ export interface Config {
     username?: string,
     password?: string,
     auth_token?: string,
+    unique_id?: string,
+    persistent?: string,
     browser: string,
     games: string[],
     headless: boolean,
@@ -444,6 +446,9 @@ function createMaskedConfig(config: Config): Config {
     masked.username = config.username ? "present" : undefined;
     masked.password = config.password ? "present" : undefined;
     masked.auth_token = config.auth_token ? "present" : undefined;
+    masked.unique_id = config.unique_id ? "present" : undefined;
+    masked.persistent = config.persistent ? "present" : undefined;
+
     return masked;
 }
 
@@ -639,43 +644,8 @@ async function main(): Promise<void> {
 
     }
 
-    // If the saved cookies are not valid, and we don't have an auth token, then we have to log in with username and password
-    if (!areSavedCookiesValid) {
-        logger.info("Logging in...");
-
-        // Validate options
-        if (config["headless_login"] && (config["username"] === undefined || config["password"] === undefined) && config.auth_token === undefined) {
-            logger.error("You must provide a username and password or an auth token to use headless login!");
-            process.exit(1);
-        }
-
-        // Check if we need to create a new headful browser for the login
-        const needNewBrowser = config["headless"] && !config["headless_login"];
-        let loginBrowser = browser;
-        if (needNewBrowser) {
-            loginBrowser = await puppeteer.launch({
-                headless: false,
-                executablePath: config["browser"],
-                args: config["browser_args"]
-            });
-        }
-
-        const loginPage = new LoginPage(await loginBrowser.newPage());
-        cookies = await loginPage.login(config["username"], config["password"], config["headless_login"], config["load_timeout_secs"]);
-
-        if (needNewBrowser) {
-            await loginBrowser.close();
-        }
-
-        config.username = getUsernameFromCookies(cookies);
-
-        // Save cookies
-        cookiesPath = `./cookies-${config.username}.json`;
-        fs.writeFileSync(cookiesPath, JSON.stringify(cookies, null, 4));
-        logger.info("Saved cookies to " + cookiesPath);
-    }
-
-    const client = await Client.fromCookies(cookies);
+    // const client = await Client.fromCookies(cookies);
+    const client = await Client.fromConfig(config);
 
     const gameIds = await convertGameNamesToIds(client, config.games);
 
